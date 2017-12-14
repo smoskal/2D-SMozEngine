@@ -14,19 +14,24 @@ import com.smoz.engine.sound.SoundClip;
 public class GameManager extends AbstractGame {
 
 	private ImageTile image = null;
+	private Image player2 = null;
 	private Image background = null;
 	private SoundClip clip = null;
 	private float tileX = 0;
 	private Light light = null;
 	
 	public GameManager() {
-		
-		//image = new Image("/textures/glowLight.png");
-		
+
 		image = new ImageTile("/soniccd.png",48,48);
 		image.setAlpha(true);
+		
+		player2 = new Image("/drrobotnik.png");
+		player2.setLightBlock(Light.FULL);
+		player2.setAlpha(true);
+		
 		background = new Image("/textures/grass.png");
 		clip = new SoundClip("/sounds/jump.wav");
+		
 		light = new Light(128, 0xfffffcf5);
 		
 	}
@@ -47,6 +52,7 @@ public class GameManager extends AbstractGame {
 
 		
 		r.setzDepth(1);
+		r.drawImage(player2, 128, 128);
 		r.drawImageTile(image, gc.getInput().getMouseX()-24, gc.getInput().getMouseY()-24,(int)tileX,0);
 		
 		r.drawLight(light, gc.getInput().getMouseX(), gc.getInput().getMouseY());

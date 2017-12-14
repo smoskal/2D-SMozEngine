@@ -10,6 +10,7 @@ import com.smoz.engine.graphics.Image;
 import com.smoz.engine.graphics.ImageRequest;
 import com.smoz.engine.graphics.ImageTile;
 import com.smoz.engine.graphics.Light;
+import com.smoz.engine.graphics.LightRequest;
 
 public class Renderer2D {
 
@@ -32,6 +33,7 @@ public class Renderer2D {
 	private int ambientColor = 0xff232323;
 	
 	private ArrayList<ImageRequest> imageRequest = new ArrayList<ImageRequest>();
+	private ArrayList<LightRequest> lightRequest = new ArrayList<LightRequest>();
 	private boolean processing = false;
 	
 	private Font font = Font.getStandardFont();
@@ -102,6 +104,12 @@ public class Renderer2D {
 			
 		}
 		
+		//Draw all the lights.
+		for(int i = 0; i < lightRequest.size(); i++) {
+			LightRequest l = lightRequest.get(i);
+			drawLightRequest(l.light, l.locX, l.locY);
+		}
+		
 		//Merge the light map with the pixel array.
 		for(int i = 0; i < p.length; i++) {
 			
@@ -115,6 +123,7 @@ public class Renderer2D {
 		}
 		
 		imageRequest.clear();
+		lightRequest.clear();
 		processing = false;
 		
 		
@@ -156,6 +165,7 @@ public class Renderer2D {
 			for(int x = newX; x < newWidth; x++) {
 				
 				setPixel(x+offX,y+offY, image.getP()[x+y*image.getWidth()]);
+				setLightBlock(x+offX,y+offY, image.getLightBlock());
 				
 			}
 		}
@@ -198,6 +208,7 @@ public class Renderer2D {
 			for(int x = newX; x < newWidth; x++) {
 				
 				setPixel(x+offX,y+offY, image.getP()[(x+tileX*image.getTileWidth())+(y+tileY*image.getTileHeight())*image.getWidth()]);
+				setLightBlock(x+offX,y+offY, image.getLightBlock());
 				
 			}
 		}
@@ -318,7 +329,20 @@ public class Renderer2D {
 		
 	}
 	
+	public void setLightBlock(int x, int y, int val) {
+		
+		if((x < 0 || x >= pW || y < 0 || y >= pH)) return;
+		if(zb[x+y*pW] > zDepth) return;
+		
+		lb[x+y*pW] = val;
+		
+	}
+	
 	public void drawLight(Light l, int offX, int offY) {
+		lightRequest.add(new LightRequest(l, offX, offY));
+	}
+	
+	private void drawLightRequest(Light l, int offX, int offY) {
 		
 		for(int i = 0; i <= l.getDiameter(); i++) {
 			drawLightLine(l, l.getRadius(), l.getRadius(), i, 0, offX, offY);
@@ -354,8 +378,12 @@ public class Renderer2D {
 			int screenX = x0-l.getRadius()+offX;
 			int screenY = y0-l.getRadius()+offY;
 			
+			if(screenX < 0 || screenX >= pW || screenY < 0 || screenY >= pH) return;
+			
 			int lightColor = l.getLightValue(x0, y0);
 			if(lightColor == 0) return;
+			
+			if(lb[screenX+screenY*pW] == Light.FULL) return;
 			
 			setLightMap(screenX, screenY, lightColor);
 			
