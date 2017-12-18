@@ -164,8 +164,12 @@ public class Renderer2D {
 		for(int y = newY; y < newHeight; y++) {
 			for(int x = newX; x < newWidth; x++) {
 				
-				setPixel(x+offX,y+offY, image.getP()[x+y*image.getWidth()]);
-				setLightBlock(x+offX,y+offY, image.getLightBlock());
+				int color = image.getP()[x+y*image.getWidth()];
+				setPixel(x+offX,y+offY, color);
+				 
+				//Do not apply the shadow if there is transparent pixels
+				if(((color >> 24) & 0xff) != 0)
+					setLightBlock(x+offX,y+offY, image.getLightBlock());
 				
 			}
 		}
@@ -207,8 +211,12 @@ public class Renderer2D {
 		for(int y = newY; y < newHeight; y++) {
 			for(int x = newX; x < newWidth; x++) {
 				
-				setPixel(x+offX,y+offY, image.getP()[(x+tileX*image.getTileWidth())+(y+tileY*image.getTileHeight())*image.getWidth()]);
-				setLightBlock(x+offX,y+offY, image.getLightBlock());
+				int color = image.getP()[(x+tileX*image.getTileWidth())+(y+tileY*image.getTileHeight())*image.getWidth()];
+				setPixel(x+offX,y+offY, color);
+				
+				//Do not apply the shadow if there is transparent pixels
+				if(((color >> 24) & 0xff) != 0)
+					setLightBlock(x+offX,y+offY, image.getLightBlock());
 				
 			}
 		}
